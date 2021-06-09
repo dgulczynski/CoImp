@@ -59,7 +59,7 @@ Lemma eval_evalinf_exclusive: forall c st st',
 Proof.
     intros c st st'.
     induction 1; intros contra; inversion contra;
-    subst; try rewrite H in H5; try rewrite H in H2; try discriminate; auto.
+    subst; try congruence; auto.
     - apply IHeval2; remember (eval_deterministic _ _ _ _ H H3); subst; auto.
     - generalize (eval_deterministic _ _ _ _ H0 H5); intros; subst st'0; auto.
 Qed.
@@ -159,3 +159,24 @@ Proof.
       (* ~ st =[ c0 ]=> st'0 *)
       + eapply I_WhileBody; eauto.
 Qed.
+
+Lemma coeval_eval_or_evalinf:
+  forall c st st', st =[ c ]=>> st' -> st =[ c ]=> st' \/ st =[ c ]=>inf.
+Proof.
+  intros. elim (classic (st =[ c ]=> st')); intros.
+  left; auto.
+  right. eapply coeval_noteval_evalinf; eauto.
+Qed.
+
+Lemma eval_coeval_deterministic:
+  forall c st st', st =[ c ]=> st' -> forall st'', st =[ c ]=>> st'' -> st' = st''.
+Proof.
+  induction c; intros st st' H  st''  H'; try (inversion H; inversion H'; subst; auto; congruence).
+   - inversion H; inversion H'; subst;
+     assert (st'0 = st'1). eapply IHc1; eauto.
+    subst st'1. eapply IHc2; eauto.
+  - inversion H; inversion H'; subst; try congruence.
+    + eapply IHc1; eauto.
+    + eapply IHc2; eauto.
+  - admit.
+Admitted. 
