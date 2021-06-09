@@ -45,6 +45,7 @@ CoInductive evalinf : com -> state -> Prop :=
   where "st =[ c ]=>inf" := (evalinf c st ).
 
 
+
 Lemma loop_diverges: forall st,
     st =[ loop ]=>inf.
 Proof.
@@ -108,21 +109,15 @@ Proof.
     eapply C_WhileTrue; auto; constructor.
 Qed.
 
-Lemma coeval_noteval_evalinf_while_true:
-    forall b c st st', st =[ while b do c end]=>> st'
-        -> ~(st =[ while b do c end ]=> st')
-        -> st =[ while b do c end ]=>inf.
+Lemma state_unchaning_loop_converges: forall b c st,
+  beval st b = true ->
+  st =[ c ]=> st ->
+  st =[ while b do c end ]=>inf.
 Proof.
   cofix COINDHYP. intros.
-  elim (classic (st =[ c ]=> st')); intro.
-  inversion H; subst.
-  - elim H0. apply E_WhileFalse; auto.
-  - inversion H8; subst.
-    + elim H0. eapply E_WhileTrue; eauto. apply E_WhileFalse; auto.
-    + admit.
-  - eauto.
-Admitted.
-  
+  eapply I_WhileLoop; eauto.
+Qed.
+
 Lemma coeval_noteval_evalinf:
   forall c st st', st =[ c ]=>> st' -> ~(st =[ c ]=> st') -> st =[ c ]=>inf.
 Proof.
@@ -154,5 +149,13 @@ Proof.
     - (* while false do c end *)
       elim H0. eapply E_WhileFalse; auto.
     - (* while true do c end *) 
-    eapply coeval_noteval_evalinf_while_true; eauto.
+      elim (classic ( st =[ c0 ]=> st'0 )); intro.
+      (* st =[ c0 ]=> st'0 *)
+      + elim (classic ( st'0 =[ while b do c0 end ]=> st')); intro.
+        (* ~ st'0 =[ while b do c0 end ]=> st' *)
+        * elim H0; eauto using E_WhileTrue.
+        (* ~ st'0 =[ while b do c0 end ]=> st' *)
+        * eapply I_WhileLoop; eauto.
+      (* ~ st =[ c0 ]=> st'0 *)
+      + eapply I_WhileBody; eauto.
 Qed.
