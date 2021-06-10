@@ -1,14 +1,3 @@
-
-Set Warnings "-notation-overridden,-parsing".
-From Coq Require Import Bool.Bool.
-From Coq Require Import Init.Nat.
-From Coq Require Import Arith.Arith.
-From Coq Require Import Arith.EqNat.
-From Coq Require Import Lia.
-From Coq Require Import Lists.List.
-From Coq Require Import Strings.String.
-Import ListNotations.
-From Coq Require Import Logic.FunctionalExtensionality.
 From LF Require Import Maps.
 From LF Require Import Imp.
 From Coq Require Import Classical.
