@@ -164,14 +164,10 @@ Theorem eval_coeval_deterministic: forall c st st',
     st =[ c ]=> st' ->
     forall st'', st =[ c ]=>> st''-> st' = st''.
 Proof.
-  intros c st st' H. induction H; intros st''' H'.
-  - inversion H'; auto.
-  - inversion H'; subst; auto.
-  - inversion H'.
-    remember (IHeval1 _ H3); subst; auto.
-  - inversion H'; subst; try congruence; auto.
-  - inversion H'; subst; try congruence; auto.
-  - inversion H'; congruence.
-  - inversion H'; subst; try congruence;
-    remember (IHeval1 _ H5); subst; auto.
+  intros c st st' H. induction H; intros st''' H'; 
+   inversion H'; subst; try congruence; auto.
+   - (* st =[c1; c2]=>>st''' *)
+      remember (IHeval1 _ H3); subst; auto.
+   - (* st =[ while true do c end ]=>> st''' *)
+      remember (IHeval1 _ H5); subst; auto.
 Qed.
