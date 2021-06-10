@@ -7,25 +7,34 @@
 
 ## Semantyka
 Mamy indukcyjną relację `eval` z `SF` (oryginalnie `ceval`).
-`st =[ c ]=> st'`
+```Coq
+st =[ c ]=> st'
+```
 
 Zdefiniowałem koindukcyjną relację `evalinf`, która oznacza że ewaluacja danej komendy w określonym stanie nie kończy się:
-`st =[ c ]=>inf`
+```Coq
+st =[ c ]=>inf
+```
 
 Oraz koindukcyjnę relację `coeval`, analogiczną do `eval`.
-`st =[ c ]=> st'`
+```Coq
+st =[ c ]=> st'
+```
 
-# Własności `eval`, `evalinf` i `coeval`
+## Własności `eval`, `evalinf` i `coeval`
 
 W `CoImp.v` znajdują się dowody następujących własności:
 
 ```Coq
 Theorem eval_coeval: forall c st st',
-    st =[ c ]=> st' -> st =[ c ]=>> st'.
+    st =[ c ]=> st' ->
+    st =[ c ]=>> st'.
 
 Theorem coeval_eval_or_evalinf: forall c st st',
-    st =[ c ]=>> st' -> st =[ c ]=> st' \/ st =[ c ]=>inf.
+    st =[ c ]=>> st' ->
+    st =[ c ]=> st' \/ st =[ c ]=>inf.
 
 Theorem eval_coeval_deterministic: forall c st st',
-    st =[ c ]=> st' -> forall st'', st =[ c ]=>> st'' -> st' = st''.
+    st =[ c ]=> st' ->
+    forall st'', st =[ c ]=>> st''-> st' = st''.
 ```
