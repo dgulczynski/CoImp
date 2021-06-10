@@ -85,8 +85,9 @@ CoInductive coeval : com -> state -> state -> Prop :=
     st  =[ while b do c end ]=>> st''
 where "st =[ c ]=>> st'" := (coeval c st st').
 
-Theorem eval_coeval:
-  forall c st st', st =[ c ]=> st' -> st =[ c ]=>> st'.
+Theorem eval_coeval: forall c st st',
+    st =[ c ]=> st' ->
+    st =[ c ]=>> st'.
 Proof.
   induction 1; econstructor; eauto; assumption.
 Qed.
@@ -149,8 +150,9 @@ Proof.
       + eapply I_WhileBody; eauto.
 Qed.
 
-Theorem coeval_eval_or_evalinf:
-  forall c st st', st =[ c ]=>> st' -> st =[ c ]=> st' \/ st =[ c ]=>inf.
+Theorem coeval_eval_or_evalinf: forall c st st',
+    st =[ c ]=>> st' ->
+    st =[ c ]=> st' \/ st =[ c ]=>inf.
 Proof.
   intros. elim (classic (st =[ c ]=> st')); intros.
   left; auto.
@@ -159,7 +161,8 @@ Qed.
 
 
 Theorem eval_coeval_deterministic: forall c st st',
-  st =[ c ]=> st' -> forall st'', st =[ c ]=>> st'' -> st' = st''.
+    st =[ c ]=> st' ->
+    forall st'', st =[ c ]=>> st''-> st' = st''.
 Proof.
   intros c st st' H. induction H; intros st''' H'.
   - inversion H'; auto.
