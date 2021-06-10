@@ -54,7 +54,7 @@ Proof.
     eapply I_WhileLoop; auto using E_Skip.
 Qed.
 
-Lemma eval_evalinf_exclusive: forall c st st',
+Theorem eval_evalinf_exclusive: forall c st st',
     st =[ c ]=> st' -> ~(st =[ c ]=>inf).
 Proof.
     intros c st st'.
@@ -96,7 +96,7 @@ CoInductive coeval : com -> state -> state -> Prop :=
     st  =[ while b do c end ]=>> st''
 where "st =[ c ]=>> st'" := (coeval c st st').
 
-Lemma eval_coeval:
+Theorem eval_coeval:
   forall c st st', st =[ c ]=> st' -> st =[ c ]=>> st'.
 Proof.
   induction 1; econstructor; eauto; assumption.
@@ -160,7 +160,7 @@ Proof.
       + eapply I_WhileBody; eauto.
 Qed.
 
-Lemma coeval_eval_or_evalinf:
+Theorem coeval_eval_or_evalinf:
   forall c st st', st =[ c ]=>> st' -> st =[ c ]=> st' \/ st =[ c ]=>inf.
 Proof.
   intros. elim (classic (st =[ c ]=> st')); intros.
@@ -168,15 +168,18 @@ Proof.
   right. eapply coeval_noteval_evalinf; eauto.
 Qed.
 
-Lemma eval_coeval_deterministic:
-  forall c st st', st =[ c ]=> st' -> forall st'', st =[ c ]=>> st'' -> st' = st''.
+
+Theorem eval_coeval_deterministic: forall c st st',
+  st =[ c ]=> st' -> forall st'', st =[ c ]=>> st'' -> st' = st''.
 Proof.
-  induction c; intros st st' H  st''  H'; try (inversion H; inversion H'; subst; auto; congruence).
-   - inversion H; inversion H'; subst;
-     assert (st'0 = st'1). eapply IHc1; eauto.
-    subst st'1. eapply IHc2; eauto.
-  - inversion H; inversion H'; subst; try congruence.
-    + eapply IHc1; eauto.
-    + eapply IHc2; eauto.
-  - admit.
-Admitted. 
+  intros c st st' H. induction H; intros st''' H'.
+  - inversion H'; auto.
+  - inversion H'; subst; auto.
+  - inversion H'.
+    remember (IHeval1 _ H3); subst; auto.
+  - inversion H'; subst; try congruence; auto.
+  - inversion H'; subst; try congruence; auto.
+  - inversion H'; congruence.
+  - inversion H'; subst; try congruence;
+    remember (IHeval1 _ H5); subst; auto.
+Qed.
