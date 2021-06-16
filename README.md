@@ -16,33 +16,33 @@ Zdefiniowałem koindukcyjną relację `evalinf`, która oznacza że ewaluacja da
 st =[ c ]=>inf
 
                            st =[ c1 ]=>inf
-                         ---------------------                          (I_Seq1)
+                         ======================                         (I_Seq1)
                          st =[ c1;c2 ]=>inf
 
                           s t =[ c1 ]=> st'
                           st' =[ c2 ]=>inf
-                         ---------------------                          (I_Seq2)
+                         =====================                          (I_Seq2)
                          st =[ c1;c2 ]=>inf
 
                           beval st b = true
                            st =[ c1 ]=>inf
-                --------------------------------------                (I_IfTrue)
+                ======================================                (I_IfTrue)
                 st =[ if b then c1 else c2 end ]=>inf
 
                          beval st b = false
                            st =[ c2 ]=>inf
-                --------------------------------------               (I_IfFalse)
+                ======================================               (I_IfFalse)
                 st =[ if b then c1 else c2 end ]=>inf
 
                          beval st b = true
                            st =[ c ]=>inf
-                    -----------------------------                  (I_WhileBody)
+                    =============================                  (I_WhileBody)
                     st =[ while b do c end ]=>>inf
 
                           beval st b = true
                            st =[ c ]=> st'
                   st' =[ while b do c end ]=>inf
-                  --------------------------------                 (I_WhileTrue)
+                  ================================                 (I_WhileTrue)
                   st  =[ while b do c end ]=>inf
 
 ```
@@ -51,36 +51,36 @@ Oraz koindukcyjnę relację `coeval`, analogiczną do `eval`.
 ```Coq
 st =[ c ]=>> st'
 
-                           -----------------                            (C_Skip)
+                           =================                            (C_Skip)
                            st =[ skip ]=>> st
 
                            aeval st a = n
-                   -------------------------------                       (C_Ass)
+                   ===============================                       (C_Ass)
                    st =[ x := a ]=>> (x !-> n ; st)
 
                            st  =[ c1 ]=>> st'
                            st' =[ c2 ]=>> st''
-                         ---------------------                           (C_Seq)
+                         ====================-                           (C_Seq)
                          st =[ c1;c2 ]=>> st''
 
                           beval st b = true
                            st =[ c1 ]=>> st'
-                --------------------------------------                (C_IfTrue)
+                ======================================                (C_IfTrue)
                 st =[ if b then c1 else c2 end ]=>> st'
 
                          beval st b = false
                            st =[ c2 ]=>> st'
-                --------------------------------------               (C_IfFalse)
+                ======================================               (C_IfFalse)
                 st =[ if b then c1 else c2 end ]=>> st'
 
                          beval st b = false
-                    -----------------------------                 (C_WhileFalse)
+                    =============================                 (C_WhileFalse)
                     st =[ while b do c end ]=>> st
 
                           beval st b = true
                            st =[ c ]=>> st'
                   st' =[ while b do c end ]=>> st''
-                  --------------------------------                 (C_WhileTrue)
+                  ================================                 (C_WhileTrue)
                   st  =[ while b do c end ]=>> st''
 ```
 

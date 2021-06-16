@@ -34,24 +34,61 @@ CoInductive evalinf : com -> state -> Prop :=
   where "st =[ c ]=>inf" := (evalinf c st ).
 
 
-
 Lemma loop_diverges: forall st,
-    st =[ loop ]=>inf.
+  st =[ loop ]=>inf.
 Proof.
-    cofix COINDHYP; intros.
-    unfold loop.
-    eapply I_WhileLoop; auto using E_Skip.
+  cofix COINDHYP; intros.
+  unfold loop.
+  eapply I_WhileLoop.
+  - reflexivity.
+  - constructor.
+  - fold loop. apply COINDHYP.
+Qed.
+
+Lemma state_unchaning_loop_converges: forall b c st,
+  beval st b = true ->
+  st =[ c ]=> st ->
+  st =[ while b do c end ]=>inf.
+Proof.
+  cofix COINDHYP. intros.
+  eapply I_WhileLoop.
+  - auto.
+  - eauto.
+  - eapply COINDHYP; auto.
+Qed.
+
+Lemma loop_diverges': forall st,
+  st =[ loop ]=>inf.
+Proof.
+  intros.
+  apply state_unchaning_loop_converges; auto; constructor.
+Qed.
+
+
+Definition loop' : com :=
+  <{ while 1 <= X do
+       X := X + 1
+     end }>.
+
+Lemma loop'_converges: forall st,
+  st X = 0 -> st =[ loop' ]=> st /\ ~st =[ loop']=>inf.
+Proof.
+  intros st Hx; inversion Hx; split.
+  - econstructor; simpl; rewrite H0; reflexivity.
+  - intros H; inversion H; subst;
+    simpl in H3; rewrite H0 in H3; discriminate.  
 Qed.
 
 Theorem eval_evalinf_exclusive: forall c st st',
     st =[ c ]=> st' -> ~(st =[ c ]=>inf).
 Proof.
-    intros c st st'.
-    induction 1; intros contra; inversion contra;
+    intros c st st' H.
+    induction H; intros contra; inversion contra;
     subst; try congruence; auto.
-    - apply IHeval2; remember (eval_deterministic _ _ _ _ H H3); subst; auto.
-    - generalize (eval_deterministic _ _ _ _ H0 H5); intros; subst st'0; auto.
+    - apply IHeval2. remember (eval_deterministic _ _ _ _ H H3); subst; auto.
+    - generalize (eval_deterministic _ _ _ _ H0 H5); intros. subst st'0; auto.
 Qed.
+
 
 Reserved Notation
          "st '=[' c ']=>>' st'"
@@ -92,20 +129,26 @@ Proof.
   induction 1; econstructor; eauto; assumption.
 Qed.
 
-Lemma coeval_loop: forall st, coeval loop st st.
+Lemma coeval_loop: forall st,
+  st =[ loop ]=>> st.
 Proof.
     cofix COINDHYP.
     intros; unfold loop.
-    eapply C_WhileTrue; auto; constructor.
+    eapply C_WhileTrue.
+    - auto.
+    - constructor.
+    - apply COINDHYP.
 Qed.
 
-Lemma state_unchaning_loop_converges: forall b c st,
-  beval st b = true ->
-  st =[ c ]=> st ->
-  st =[ while b do c end ]=>inf.
+Lemma coeval_loop': forall st,
+  st X = 0 -> st =[ loop ]=>> st.
 Proof.
-  cofix COINDHYP. intros.
-  eapply I_WhileLoop; eauto.
+    cofix COINDHYP.
+    intros; unfold loop.
+    eapply C_WhileTrue.
+    - auto.
+    - constructor.
+    - apply COINDHYP; auto.
 Qed.
 
 Lemma coeval_noteval_evalinf:
@@ -113,17 +156,17 @@ Lemma coeval_noteval_evalinf:
 Proof.
     cofix COINDHYP. intros.
     inversion H; subst.
-    - (* skip *) elim H0; constructor; auto.
-    - (* x := a *) elim H0; constructor; auto.
+    - (* skip *) elim H0. constructor.
+    - (* x := a *) elim H0. constructor; auto.
     - (* c1; c2 *) elim (classic (st =[ c1 ]=> st'0)); intro.
       + (* st =[ c1 ]=> st'0 *)
         elim (classic (st'0 =[ c2 ]=> st')); intro.
-        * (* st =[ c2 ]=> st'0 *)
+        * (* st'0 =[ c2 ]=> st' *)
           elim H0. econstructor. apply H3. apply H4.
-        * (* ~ st =[ c2 ]=> st'0 *)
-          eapply I_Seq2. apply H3. eauto.
+        * (* ~ st'0 =[ c2 ]=> st' *)
+          eapply I_Seq2. apply H3. eapply COINDHYP. eauto. auto.
       + (* ~ st =[ c1 ]=> st'0 *)
-        eapply I_Seq1. eauto.
+        eapply I_Seq1. eapply COINDHYP; eauto.
     - (* if true then c1 else c2 end *)
       elim (classic (st =[ c1 ]=> st')); intro.
       + (* st =[ c1 ]=> st' *)
