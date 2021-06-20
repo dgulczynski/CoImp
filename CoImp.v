@@ -151,34 +151,34 @@ Proof.
     - apply COINDHYP; auto.
 Qed.
 
-Lemma coeval_noteval_evalinf:
-  forall c st st', st =[ c ]=>> st' -> ~(st =[ c ]=> st') -> st =[ c ]=>inf.
+Lemma coeval_noteval_evalinf: forall c st st',
+  st =[ c ]=>> st' -> ~(st =[ c ]=> st') -> st =[ c ]=>inf.
 Proof.
     cofix COINDHYP. intros.
     inversion H; subst.
-    - (* skip *) elim H0. constructor.
-    - (* x := a *) elim H0. constructor; auto.
+    - (* skip *) elim H0; constructor.
+    - (* x := a *) elim H0; constructor; auto.
     - (* c1; c2 *) elim (classic (st =[ c1 ]=> st'0)); intro.
       + (* st =[ c1 ]=> st'0 *)
         elim (classic (st'0 =[ c2 ]=> st')); intro.
         * (* st'0 =[ c2 ]=> st' *)
-          elim H0. econstructor. apply H3. apply H4.
+          elim H0. econstructor; try apply H3;  apply H4.
         * (* ~ st'0 =[ c2 ]=> st' *)
-          eapply I_Seq2. apply H3. eapply COINDHYP. eauto. auto.
+          eapply I_Seq2; try apply H3. eapply COINDHYP; eauto; auto.
       + (* ~ st =[ c1 ]=> st'0 *)
-        eapply I_Seq1. eapply COINDHYP; eauto.
+        eapply I_Seq1; eapply COINDHYP; eauto.
     - (* if true then c1 else c2 end *)
       elim (classic (st =[ c1 ]=> st')); intro.
       + (* st =[ c1 ]=> st' *)
-        elim H0. econstructor. apply H1. apply H3.
+        elim H0; econstructor; try apply H1; apply H3.
       + (* ~st =[ c1 ]=> st' *)
-        eapply I_IfTrue. apply H1. eauto.
+        eapply I_IfTrue; try apply H1; eauto.
     - (* if false then c1 else c2 end *)
       elim (classic (st =[ c2 ]=> st')); intro.
         + (* st =[ c2 ]=> st' *)
-          elim H0. eapply E_IfFalse. apply H1. apply H3.
+          elim H0. eapply E_IfFalse; try apply H1; apply H3.
         + (* ~st =[ c2 ]=> st' *)
-          eapply I_IfFalse. apply H1. eauto.
+          eapply I_IfFalse; try apply H1; eauto.
     - (* while false do c end *)
       elim H0. eapply E_WhileFalse; auto.
     - (* while true do c end *) 

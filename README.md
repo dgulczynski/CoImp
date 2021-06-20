@@ -9,6 +9,38 @@
 Mamy indukcyjną relację `eval` z `SF` (oryginalnie `ceval`).
 ```Coq
 st =[ c ]=> st'
+
+                           -----------------                            (C_Skip)
+                           st =[ skip ]=> st
+
+                           aeval st a = n
+                   -------------------------------                       (C_Ass)
+                   st =[ x := a ]=> (x !-> n ; st)
+
+                           st  =[ c1 ]=> st'
+                           st' =[ c2 ]=> st''
+                         ------------------==-                           (C_Seq)
+                         st =[ c1;c2 ]=> st''
+
+                          beval st b = true
+                           st =[ c1 ]=> st'
+                --------------------------------------                (C_IfTrue)
+                st =[ if b then c1 else c2 end ]=> st'
+
+                         beval st b = false
+                           st =[ c2 ]=> st'
+                --------------------------------------               (C_IfFalse)
+                st =[ if b then c1 else c2 end ]=> st'
+
+                         beval st b = false
+                    -----------------------------                 (C_WhileFalse)
+                    st =[ while b do c end ]=> st
+
+                          beval st b = true
+                           st =[ c ]=> st'
+                  st' =[ while b do c end ]=> st''
+                  --------------------------------                 (C_WhileTrue)
+                  st  =[ while b do c end ]=> st''
 ```
 
 Zdefiniowałem koindukcyjną relację `evalinf`, która oznacza że ewaluacja danej komendy w określonym stanie nie kończy się:
@@ -37,7 +69,7 @@ st =[ c ]=>inf
                          beval st b = true
                            st =[ c ]=>inf
                     =============================                  (I_WhileBody)
-                    st =[ while b do c end ]=>>inf
+                    st =[ while b do c end ]=>inf
 
                           beval st b = true
                            st =[ c ]=> st'
